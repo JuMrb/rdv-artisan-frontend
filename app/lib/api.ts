@@ -44,3 +44,18 @@ export const api = {
     return apiFetch(`/artisans${q}`);
   },
 };
+// app/lib/api.ts (ajoute à la fin)
+export const auth = {
+  login: async (email: string, password: string) => {
+    return apiFetch(`/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }, // POST => ok
+      body: JSON.stringify({ email, password }),
+    });
+  },
+  me: async (token: string) => {
+    return apiFetch(`/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+};
