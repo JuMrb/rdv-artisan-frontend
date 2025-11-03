@@ -1,12 +1,19 @@
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+// app/lib/api.ts
+const RAW_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "https://rdv-artisan-backend.onrender.com";
 
-// petit helper pour faire les requêtes à l'API backend
+// 1) normalise: pas de slash final
+export const API_URL = RAW_URL.replace(/\/+$/, "");
+
+// Petit helper API
 export async function apiFetch(
   path: string,
   options: RequestInit = {}
 ): Promise<any> {
-  const res = await fetch(`${API_URL}${path}`, {
+  // 2) garantit le slash initial du path
+  const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
+
+  const res = await fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -16,11 +23,10 @@ export async function apiFetch(
   });
 
   if (!res.ok) {
-    // on essaie de lire l'erreur renvoyée
-    let errMsg = "Erreur serveur";
+    let errMsg = `HTTP ${res.status}`;
     try {
       const data = await res.json();
-      errMsg = data.error || JSON.stringify(data);
+      errMsg = data?.error || JSON.stringify(data);
     } catch (_) {}
     throw new Error(errMsg);
   }
@@ -32,7 +38,6 @@ export async function apiFetch(
   }
 }
 
-// appels concrets
 export const api = {
   searchArtisans: async (metier: string) => {
     const q = metier ? `?metier=${encodeURIComponent(metier)}` : "";
