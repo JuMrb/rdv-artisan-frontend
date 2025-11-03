@@ -1,24 +1,24 @@
 // app/lib/api.ts
 const RAW_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "https://rdv-artisan-backend.onrender.com";
-
-// 1) normalise: pas de slash final
 export const API_URL = RAW_URL.replace(/\/+$/, "");
 
-// Petit helper API
 export async function apiFetch(
   path: string,
   options: RequestInit = {}
 ): Promise<any> {
-  // 2) garantit le slash initial du path
   const url = `${API_URL}${path.startsWith("/") ? path : `/${path}`}`;
+
+  // Ne force pas Content-Type pour GET
+  const isGet = !options.method || options.method.toUpperCase() === "GET";
+  const headers: HeadersInit = {
+    ...(options.headers || {}),
+    ...(isGet ? {} : { "Content-Type": "application/json" }),
+  };
 
   const res = await fetch(url, {
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
+    headers,
     cache: "no-store",
   });
 
@@ -27,7 +27,7 @@ export async function apiFetch(
     try {
       const data = await res.json();
       errMsg = data?.error || JSON.stringify(data);
-    } catch (_) {}
+    } catch {}
     throw new Error(errMsg);
   }
 
