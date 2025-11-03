@@ -6,6 +6,18 @@ import { useAuth } from "../context/AuthContext";
 export default function Header() {
   const { user, logout } = useAuth();
 
+// en haut du composant, juste avant le return (ou directement inline)
+const displayName =
+  user?.fullName || user?.companyName || user?.email || "Utilisateur";
+
+const roleLabel =
+  user?.role === "ARTISAN"
+    ? "Artisan"
+    : user?.role === "ADMIN"
+    ? "Admin"
+    : "Particulier";
+
+
   return (
     <header className="bg-white border-b">
       <div className="max-w-6xl mx-auto flex items-center justify-between p-4">
@@ -32,11 +44,12 @@ export default function Header() {
             <div className="flex items-center gap-3">
               <div className="text-right">
                 <div className="text-gray-900 font-medium leading-tight text-sm">
-                  {user.name}
+                  {displayName}
                 </div>
                 <div className="text-[11px] text-gray-500 leading-tight">
-                  {user.role === "artisan" ? "Artisan" : user.role === "admin" ? "Admin" : "Particulier"}
+                  {roleLabel}
                 </div>
+
                 <Link
                   href={user.role === "admin" ? "/admin" : "/mon-espace"}
                   className="text-[11px] text-indigo-600 font-medium hover:underline"

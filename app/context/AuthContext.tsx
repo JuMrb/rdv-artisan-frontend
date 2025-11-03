@@ -9,6 +9,7 @@ type User = {
   companyName?: string | null;
 };
 
+
 type AuthContextType = {
   user: User | null;
   token: string | null;
@@ -24,6 +25,16 @@ const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   logout: () => {},
 });
+
+export type AppUser = {
+  id: string;
+  email: string;
+  role: "ADMIN" | "ARTISAN" | "CLIENT";
+  fullName?: string;
+  companyName?: string;
+  avatarUrl?: string | null;
+};
+
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
