@@ -28,49 +28,56 @@ export default function HomePage() {
             par d&apos;autres particuliers et bloquez un créneau instantanément.
           </p>
 
-          {/* Search Card */}
-          <div className="bg-white shadow-lg rounded-2xl p-4 md:p-6 mt-8 border">
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="flex flex-col">
-                <label className="text-sm text-gray-700 font-medium mb-1">
-                  Quel professionnel ?
-                </label>
-                <input
-                  value={metier}
-                  onChange={(e) => setMetier(e.target.value)}
-                  placeholder="Plombier, Électricien..."
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
+          // app/page.tsx  (remplace seulement la carte de recherche)
 
-              <div className="flex flex-col">
-                <label className="text-sm text-gray-700 font-medium mb-1">
-                  Où ?
-                </label>
-                <input
-                  value={localisation}
-                  onChange={(e) => setLocalisation(e.target.value)}
-                  placeholder="75018 Paris, Lyon 3..."
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
+{/* Search Card */}
+<div className="bg-white shadow-lg rounded-2xl p-4 md:p-6 mt-8 border">
+  <form
+    onSubmit={(e) => {
+      e.preventDefault();
+      const qs = new URLSearchParams();
+      if (metier) qs.set("metier", metier);
+      if (localisation) qs.set("loc", localisation);
+      window.location.href = `/recherche?${qs.toString()}`;
+    }}
+    className="grid md:grid-cols-3 gap-4"
+  >
+    <div className="flex flex-col">
+      <label className="text-sm text-gray-700 font-medium mb-1">Quel professionnel ?</label>
+      <input
+        value={metier}
+        onChange={(e) => setMetier(e.target.value)}
+        placeholder="Plombier, Électricien..."
+        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      />
+    </div>
 
-              <div className="flex items-end">
-                <a
-                  href="/recherche"
-                  className="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 text-white font-medium px-4 py-2.5 hover:bg-indigo-700 text-sm"
-                >
-                  <Search className="w-4 h-4" />
-                  <span>Rechercher</span>
-                </a>
-              </div>
-            </div>
+    <div className="flex flex-col">
+      <label className="text-sm text-gray-700 font-medium mb-1">Où ?</label>
+      <input
+        value={localisation}
+        onChange={(e) => setLocalisation(e.target.value)}
+        placeholder="75018 Paris, Lyon 3..."
+        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      />
+    </div>
 
-            <p className="text-xs text-gray-500 mt-3">
-              Pas d&apos;engagement. Paiement uniquement après intervention.
-            </p>
-          </div>
-        </div>
+    <div className="flex items-end">
+      <button
+        type="submit"
+        className="w-full flex items-center justify-center gap-2 rounded-lg bg-indigo-600 text-white font-medium px-4 py-2.5 hover:bg-indigo-700 text-sm"
+      >
+        <Search className="w-4 h-4" />
+        <span>Rechercher</span>
+      </button>
+    </div>
+  </form>
+
+  <p className="text-xs text-gray-500 mt-3">
+    Pas d&apos;engagement. Paiement uniquement après intervention.
+  </p>
+</div>
+
 
         {/* Bloc avis / stats */}
         <div className="bg-white rounded-2xl border shadow-md p-6 flex flex-col gap-6">
@@ -142,12 +149,13 @@ export default function HomePage() {
             ].map((m) => (
               <a
                 key={m}
-                href="/recherche"
+                href={`/recherche?metier=${encodeURIComponent(m)}`}
                 className="border rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium py-3 px-3 text-center"
               >
                 {m}
               </a>
             ))}
+
           </div>
 
           <div className="text-right mt-4">
