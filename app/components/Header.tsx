@@ -17,6 +17,7 @@ const roleLabel =
     ? "Admin"
     : "Particulier";
 
+const isAdmin = user?.role === "ADMIN";
 
   return (
     <header className="bg-white border-b">
@@ -51,7 +52,7 @@ const roleLabel =
                 </div>
 
                 <Link
-                  href={user.role === "ADMIN" ? "/admin" : "/mon-espace"}
+                  href={isAdmin ? "/admin" : "/mon-espace"}
                   className="text-[11px] text-indigo-600 font-medium hover:underline"
                 >
                   Mon espace
