@@ -7,6 +7,7 @@ type User = {
   role: "ARTISAN" | "CLIENT" | "ADMIN";
   companyName?: string | null;
   email: string;
+  fullName?: string | null;
 };
 
 type AuthContextType = {
