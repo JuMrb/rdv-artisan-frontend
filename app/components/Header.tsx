@@ -51,7 +51,7 @@ const roleLabel =
                 </div>
 
                 <Link
-                  href={user.role === "admin" ? "/admin" : "/mon-espace"}
+                  href={user.role === "ADMIN" ? "/admin" : "/mon-espace"}
                   className="text-[11px] text-indigo-600 font-medium hover:underline"
                 >
                   Mon espace
