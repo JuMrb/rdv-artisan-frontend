@@ -1,84 +1,71 @@
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
-import { auth } from "../lib/api";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { authApi, tokenStore } from "../lib/api";
 
 type User = {
   id: string;
-  role: "ARTISAN" | "ADMIN" | "CLIENT";
-  email: string;
+  role: "ARTISAN" | "CLIENT" | "ADMIN";
   companyName?: string | null;
+  email: string;
 };
-
 
 type AuthContextType = {
   user: User | null;
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  registerArtisan: (companyName: string, email: string, password: string) => Promise<void>;
   logout: () => void;
 };
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  token: null,
-  loading: true,
-  login: async () => {},
-  logout: () => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export type AppUser = {
-  id: string;
-  email: string;
-  role: "ADMIN" | "ARTISAN" | "CLIENT";
-  fullName?: string;
-  companyName?: string;
-  avatarUrl?: string | null;
-};
-
-
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // charge depuis localStorage au démarrage
+  // au chargement : si un token existe, récupérer /auth/me
   useEffect(() => {
-    const t = localStorage.getItem("token");
-    if (!t) {
-      setLoading(false);
-      return;
-    }
+    const t = tokenStore.get();
+    if (!t) return setLoading(false);
     setToken(t);
-    auth
-      .me(t)
+    authApi
+      .me()
       .then((u) => setUser(u))
-      .catch(() => {
-        localStorage.removeItem("token");
-        setToken(null);
-        setUser(null);
-      })
       .finally(() => setLoading(false));
   }, []);
 
   const login = async (email: string, password: string) => {
-    const data = await auth.login(email, password);
-    // on suppose { token: "...", user: {...} }
-    localStorage.setItem("token", data.token);
-    setToken(data.token);
-    setUser(data.user);
+    const { token, user } = await authApi.login(email, password);
+    tokenStore.set(token);
+    setToken(token);
+    setUser(user);
+  };
+
+  const registerArtisan = async (companyName: string, email: string, password: string) => {
+    const { token, user } = await authApi.registerArtisan(companyName, email, password);
+    tokenStore.set(token);
+    setToken(token);
+    setUser(user);
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
+    tokenStore.clear();
     setToken(null);
     setUser(null);
   };
 
-  return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout }}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({ user, token, loading, login, registerArtisan, logout }),
+    [user, token, loading]
   );
-};
 
-export const useAuth = () => useContext(AuthContext);
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within <AuthProvider>");
+  return ctx;
+}

@@ -59,3 +59,44 @@ export const auth = {
     });
   },
 };
+// --- AUTH HELPERS ---
+// stocke/récupère le token JWT dans localStorage
+export const tokenStore = {
+  get: () => (typeof window !== "undefined" ? localStorage.getItem("token") : null),
+  set: (t: string) => localStorage.setItem("token", t),
+  clear: () => localStorage.removeItem("token"),
+};
+
+async function apiFetchAuth(path: string, options: RequestInit = {}) {
+  const t = tokenStore.get();
+  return apiFetch(path, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      ...(t ? { Authorization: `Bearer ${t}` } : {}),
+    },
+  });
+}
+
+export const authApi = {
+  // POST /auth/login  { email, password } -> { token, user }
+  login: async (email: string, password: string) => {
+    return apiFetch("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+      headers: { "Content-Type": "application/json" },
+    });
+  },
+
+  // POST /auth/register/artisan  { companyName, email, password } -> { token, user }
+  registerArtisan: async (companyName: string, email: string, password: string) => {
+    return apiFetch("/auth/register/artisan", {
+      method: "POST",
+      body: JSON.stringify({ companyName, email, password }),
+      headers: { "Content-Type": "application/json" },
+    });
+  },
+
+  // GET /auth/me -> user (avec Authorization: Bearer)
+  me: async () => apiFetchAuth("/auth/me"),
+};
