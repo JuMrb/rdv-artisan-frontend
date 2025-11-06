@@ -37,9 +37,8 @@ const isAdmin = user?.role === "ADMIN";
           <Link className="hover:text-gray-900" href="/recherche">
             Trouver un artisan
           </Link>
-          <Link className="hover:text-gray-900" href="/inscription/artisan">
-            Pro ? Inscription
-          </Link>
+          <Link href="/login?tab=register" className="...">Pro ? Inscription</Link>
+
 
           {user ? (
             <div className="flex items-center gap-3">
